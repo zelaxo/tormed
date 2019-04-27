@@ -1,0 +1,12 @@
+{
+  "name": "tormed",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.444.0",
+    "body-parser": "^1.19.0",
+    "express": "^4.16.4",
+    "webtorrent": "^0.103.1"
+  }
+}

@@ -1,0 +1,29 @@
+<html>
+    <head>
+        <title>tormed</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+        <script src="https://code.jquery.com/jquery-3.4.0.min.js"></script>
+    </head>
+    <body>
+
+        <div class="jumbotron" style="text-align:center">
+            <h1>TorMed</h1>
+            <br><br>
+            <p>
+                <input type="text" id="magnet"><br><br>
+                <button id="submit">SUBMIT</button>
+            </p>
+        </div>
+
+        <script>
+            $('#submit').click(() => {
+                let magnet = $('#magnet').val();
+                let data = JSON.stringify({mag : magnet});
+                $.post('/', data, () => {
+                    console.log('MagnetUrl conveyed to server')
+                });
+            });
+        </script>
+
+    </body>
+</html>
