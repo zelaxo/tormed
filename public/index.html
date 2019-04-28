@@ -10,18 +10,19 @@
             <h1>TorMed</h1>
             <br><br>
             <p>
-                <input type="text" id="magnet"><br><br>
-                <button id="submit">SUBMIT</button>
+                <input type="text" id="magnet" class="form-control input-lg"><br><br>
+                <button id="submit" class="btn btn-success btn-lg">SUBMIT</button>
             </p>
         </div>
 
         <script>
             $('#submit').click(() => {
                 let magnet = $('#magnet').val();
-                let data = JSON.stringify({mag : magnet});
-                $.post('/', data, () => {
+                let data = {mag : magnet};
+                $.post('/murl', data, () => {
                     console.log('MagnetUrl conveyed to server')
                 });
+                window.alert('Torrent Added');
             });
         </script>
 
