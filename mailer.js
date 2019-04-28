@@ -1,6 +1,6 @@
 const sgmail = require('@sendgrid/mail');
 
-sgmail.setApiKey('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');
+sgmail.setApiKey(process.env.SG);
 
 function serverNotif(filename) {
     const message = { 
