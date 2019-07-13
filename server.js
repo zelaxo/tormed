@@ -5,11 +5,12 @@ const fs = require('fs');
 const bodyParser = require('body-parser');
 
 const {serverNotif} = require('./mailer');
+const {fallback} = require('./fallback');
 
 const app = express();
 app.use(express.static(`${__dirname}/public`));
 app.use(bodyParser.urlencoded({extended:true}));
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8080;
 
 aws.config.update({
     accessKeyId : process.env.AKI,
@@ -23,6 +24,20 @@ let params = {
     Key : null,
     Body : null
 }
+
+//Activating Fallback
+fs.readdir('./downloads', function(err, files) {
+    if (err) {
+       console.log('Problem accessing downloads');
+    } else {
+       if (files.length != 0) {
+        files.forEach((file) => {
+            serverNotif(file);
+        });
+        fallback();
+       }
+    }
+});
 
 app.post('/murl', (req,res) => {
     let magnet = req.body.mag;
