@@ -4,8 +4,8 @@ sgmail.setApiKey(process.env.SG);
 
 function serverNotif(filename) {
     const message = { 
-        to : 'otdo@mail.ccsf.edu',
-        from : { email : 'notification@tormed.azurewebsites.net' , name: 'TorMed'},
+        to : '{email_id}',
+        from : { email : 'notification@tormed.com' , name: 'TorMed'},
         subject : "TorMed Notification",
         text : `Hello Sir, ${filename} has been downloaded to the server`
     }
