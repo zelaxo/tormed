@@ -32,6 +32,10 @@ function fallback() {
                                 s3.putObject(params,(err) => {
                                     if (err) throw err;
                                     console.log(`${subfile} transfered to storage!`);
+                                    //Releasing Memory
+                                    params.Key = null;
+                                    params.Body = null;
+                                    //Removing Local Files
                                     fs.unlink(`${__dirname}/downloads/${file}/${subfile}`, (err) => {
                                         if (err) throw err;
                                         return console.log(`${subfile} cleared from server`);
@@ -49,6 +53,10 @@ function fallback() {
                 s3.putObject(params,(err) => {
                     if (err) throw err;
                     console.log(`${file} transfered to storage!`);
+                    //Releasing Memory
+                    params.Key = null;
+                    params.Body = null;
+                    //Removing local files
                     fs.unlink(`${__dirname}/downloads/${file}`, (err) => {
                         if (err) throw err;
                         return console.log(`${file} cleared from server`);

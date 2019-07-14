@@ -54,6 +54,10 @@ app.post('/murl', (req,res) => {
                 s3.putObject(params,(err) => {
                     if (err) throw err;
                     console.log(`${file.name} transfered to storage!`);
+                    //Releasing Memory
+                    params.Key = null;
+                    params.Body = null;
+                    //Deleting Local Files
                     fs.unlink(`${__dirname}/downloads/${file.name}`, (err) => {
                         if (err) throw err;
                         return console.log(`${file.name} cleared from server`);
