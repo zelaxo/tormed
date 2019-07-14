@@ -3,6 +3,7 @@ const aws = require('aws-sdk');
 const express = require('express');
 const fs = require('fs');
 const bodyParser = require('body-parser');
+const rm = require('rimraf');
 
 const {serverNotif} = require('./mailer');
 const {fallback} = require('./fallback');
@@ -26,18 +27,7 @@ let params = {
 }
 
 //Activating Fallback
-fs.readdir('./downloads', function(err, files) {
-    if (err) {
-       console.log('Problem accessing downloads');
-    } else {
-       if (files.length != 0) {
-        files.forEach((file) => {
-            serverNotif(file);
-        });
-        fallback();
-       }
-    }
-});
+fallback();
 
 app.post('/murl', (req,res) => {
     let magnet = req.body.mag;
@@ -48,21 +38,54 @@ app.post('/murl', (req,res) => {
         torrent.on('done', () => {
             console.log('Torrent successfully downloaded to server!');
             serverNotif(torrent.name);  //Sends notification email
-            torrent.files.forEach((file) => {
-                params.Key = file.name;
-                params.Body = fs.readFileSync(`${__dirname}/downloads/${file.name}`);
-                s3.putObject(params,(err) => {
-                    if (err) throw err;
-                    console.log(`${file.name} transfered to storage!`);
-                    //Releasing Memory
-                    params.Key = null;
-                    params.Body = null;
-                    //Deleting Local Files
-                    fs.unlink(`${__dirname}/downloads/${file.name}`, (err) => {
+            fs.readdir('./downloads', (err,files) => {
+                if (err) throw err;
+                files.forEach((file) => {
+                    if(fs.lstatSync('./downloads/'+file).isDirectory()) {
+                        fs.readdir('./downloads/'+file, (err,subfiles) => {
+                            if (err) throw err;
+                            if(subfiles.length == 0) {
+                                rm('./downloads/'+file, (err) => {
+                                    if (err) throw err;
+                                });
+                            }
+                            else {
+                                subfiles.forEach((subfile) => {
+                                    params.Key = subfile;
+                                    params.Body = fs.readFileSync(`${__dirname}/downloads/${file}/${subfile}`);
+                                    s3.putObject(params,(err) => {
+                                        if (err) throw err;
+                                        console.log(`${subfile} transfered to storage!`);
+                                        //Releasing Memory
+                                        params.Key = null;
+                                        params.Body = null;
+                                        //Removing Local Files
+                                        fs.unlink(`${__dirname}/downloads/${file}/${subfile}`, (err) => {
+                                            if (err) throw err;
+                                            return console.log(`${subfile} cleared from server`);
+                                        });
+                                    }); 
+                                });
+                            }
+                        });
+                    }
+                    else {
+                        params.Key = file;
+                        params.Body = fs.readFileSync(`${__dirname}/downloads/${file}`);
+                        s3.putObject(params,(err) => {
                         if (err) throw err;
-                        return console.log(`${file.name} cleared from server`);
-                    });
-                }); 
+                        console.log(`${file} transfered to storage!`);
+                        //Releasing Memory
+                        params.Key = null;
+                        params.Body = null;
+                        //Deleting Local Files
+                        fs.unlink(`${__dirname}/downloads/${file}`, (err) => {
+                            if (err) throw err;
+                            return console.log(`${file} cleared from server`);
+                        });
+                     });
+                    }
+                });
             });
         });
     });
